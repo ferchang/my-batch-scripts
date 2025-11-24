@@ -135,11 +135,17 @@ IF ERRORLEVEL 1 (
 )
 :out
 
-if not %dir%==filename goto jmp
-	for %%a in ("%1") do set dir=%%~na
+if not "%dir%"=="filename" goto jmp
+	rem echo %1
+	for %%a in (%1) do (
+		rem echo %%~na
+		set dir=%%~na
+	)
+	rem pause
+	rem exit
 :jmp
 
-if not %dir%==custom goto jmp
+if not "%dir%"=="custom" goto jmp
 	:loopx
 	echo.
 	set /p dir="dir name: "
@@ -151,7 +157,7 @@ if not %dir%==custom goto jmp
 
 cls
 
-if %dir%==. goto jmp
+if "%dir%"=="." goto jmp
 	mkdir "%dir%"
 	if %ERRORLEVEL% NEQ 0 echo.
 :jmp
@@ -177,6 +183,36 @@ if /i "%format:~0,3%"=="txt" set ext=txt
 
 set filename=pdf2img-r%res%-%format%
 if %ext%==jpg set filename=%filename%-q%quality%
+
+rem ============================
+
+set dest_files="%dir%\%filename%*"
+
+cls
+
+rem echo dest_files: %dest_files%
+
+dir %dest_files% >nul 2>nul && (
+   echo similar destination files exist:
+   echo -------------------------------
+   for %%a in (%dest_files%) do echo %%a
+   echo -------------------------------
+   
+   set similar_dest_files_exist=1
+   
+)
+
+if not "%similar_dest_files_exist%"=="1" goto jmp
+
+	echo.
+	CHOICE /m "overwrite of existing files possible. continue"
+	IF ERRORLEVEL 2 exit
+	echo.
+
+:jmp
+
+rem ===========================
+
 set filename=%filename%-%%03d.%ext%
 
 gswin64c.exe -sPageList=%pages% -sDEVICE=%format% -r%res% %quality2% -o "%dir%/%filename%" %1
