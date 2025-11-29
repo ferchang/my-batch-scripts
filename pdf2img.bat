@@ -135,14 +135,12 @@ IF ERRORLEVEL 1 (
 )
 :out
 
+for %%a in (%1) do (
+	set filename0=%%~na
+)
+
 if not "%dir%"=="filename" goto jmp
-	rem echo %1
-	for %%a in (%1) do (
-		rem echo %%~na
-		set dir=%%~na
-	)
-	rem pause
-	rem exit
+	set dir=%filename0%
 :jmp
 
 if not "%dir%"=="custom" goto jmp
@@ -181,7 +179,7 @@ if /i "%format:~0,4%"=="jpeg" set ext=jpg
 if /i "%format:~0,3%"=="png" set ext=png
 if /i "%format:~0,3%"=="txt" set ext=txt
 
-set filename=pdf2img-r%res%-%format%
+set filename=pdf2img-%filename0%-r%res%-%format%
 if %ext%==jpg set filename=%filename%-q%quality%
 
 rem ============================
